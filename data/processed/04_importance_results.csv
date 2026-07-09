@@ -1,0 +1,5 @@
+factor,oliver_weight,early_weight,early_ci_low,early_ci_high,modern_weight,modern_ci_low,modern_ci_high,ci_overlap
+eFG,40,45.4,40.0,51.0,50.1,44.5,56.6,yes
+TOV,25,24.1,19.8,28.5,27.5,22.3,33.1,yes
+ORB,20,12.4,7.4,17.4,10.0,4.2,15.4,yes
+FTr,15,18.1,13.3,22.8,12.4,6.5,17.7,yes
