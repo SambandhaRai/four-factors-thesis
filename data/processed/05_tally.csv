@@ -1,0 +1,3 @@
+season,n_games,model_correct,model_accuracy,always_home_accuracy
+2024-25,1148,717,0.6246,0.5497
+2025-26,1146,684,0.5969,0.5515
