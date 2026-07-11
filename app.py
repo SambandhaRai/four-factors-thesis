@@ -37,6 +37,20 @@ HOME_COLOR = "#1f77b4"
 AWAY_COLOR = "#d62728"
 NEUTRAL_COLOR = "#7f7f7f"
 
+# NBA abbreviation -> full team name.
+TEAM_NAME = {
+    "ATL": "Atlanta Hawks", "BKN": "Brooklyn Nets", "BOS": "Boston Celtics",
+    "CHA": "Charlotte Hornets", "CHI": "Chicago Bulls", "CLE": "Cleveland Cavaliers",
+    "DAL": "Dallas Mavericks", "DEN": "Denver Nuggets", "DET": "Detroit Pistons",
+    "GSW": "Golden State Warriors", "HOU": "Houston Rockets", "IND": "Indiana Pacers",
+    "LAC": "LA Clippers", "LAL": "Los Angeles Lakers", "MEM": "Memphis Grizzlies",
+    "MIA": "Miami Heat", "MIL": "Milwaukee Bucks", "MIN": "Minnesota Timberwolves",
+    "NOP": "New Orleans Pelicans", "NYK": "New York Knicks", "OKC": "Oklahoma City Thunder",
+    "ORL": "Orlando Magic", "PHI": "Philadelphia 76ers", "PHX": "Phoenix Suns",
+    "POR": "Portland Trail Blazers", "SAC": "Sacramento Kings", "SAS": "San Antonio Spurs",
+    "TOR": "Toronto Raptors", "UTA": "Utah Jazz", "WAS": "Washington Wizards",
+}
+
 # NBA abbreviation -> ESPN logo slug (all 30 verified).
 LOGO_SLUG = {
     "ATL": "atl", "BKN": "bkn", "BOS": "bos", "CHA": "cha", "CHI": "chi", "CLE": "cle",
@@ -111,6 +125,7 @@ with tab_games:
     for _, g in games_today.iterrows():
         gid = g["GAME_ID"]
         home, away = g["home_team"], g["away_team"]
+        home_name, away_name = TEAM_NAME[home], TEAM_NAME[away]
         home_pct = g["p_home_win"] * 100
         away_pct = 100 - home_pct
         selected = gid == st.session_state["sel_gid"]
@@ -119,12 +134,16 @@ with tab_games:
             c = st.columns([1, 2.4, 0.6, 2.4, 1, 1.6], vertical_alignment="center")
             c[0].image(logo(home), width=44)
             c[1].markdown(
-                f"**{home}**<br><span style='color:{HOME_COLOR}'>{home_pct:.0f}% win</span>",
+                f"<div style='text-align:center'><b>{home_name}</b><br>"
+                f"<span style='color:{HOME_COLOR}'>{home_pct:.0f}% win</span></div>",
                 unsafe_allow_html=True,
             )
-            c[2].markdown("<div style='text-align:center'>vs</div>", unsafe_allow_html=True)
+            c[2].markdown(
+                "<div style='text-align:center;font-size:20px;font-weight:700'>vs</div>",
+                unsafe_allow_html=True,
+            )
             c[3].markdown(
-                f"<div style='text-align:right'><b>{away}</b><br>"
+                f"<div style='text-align:center'><b>{away_name}</b><br>"
                 f"<span style='color:{AWAY_COLOR}'>{away_pct:.0f}% win</span></div>",
                 unsafe_allow_html=True,
             )
@@ -138,12 +157,13 @@ with tab_games:
     # --- Detail panel for the selected game ---
     game = games_today[games_today["GAME_ID"] == st.session_state["sel_gid"]].iloc[0]
     home, away = game["home_team"], game["away_team"]
+    home_name, away_name = TEAM_NAME[home], TEAM_NAME[away]
     p_home = float(game["p_home_win"])
     p_away = 1 - p_home
 
     st.divider()
-    st.subheader(f"Prediction — {home} vs {away}")
-    favored = home if p_home >= 0.5 else away
+    st.subheader(f"Prediction — {home_name} vs {away_name}")
+    favored = home_name if p_home >= 0.5 else away_name
     fav_prob = max(p_home, p_away)
 
     # Two-sided probability bar: home share on the left, away share on the right.
@@ -152,9 +172,9 @@ with tab_games:
         <div style='display:flex;height:30px;border-radius:6px;overflow:hidden;
                     font-size:14px;font-weight:600;color:white;margin-bottom:6px'>
           <div style='width:{p_home * 100:.1f}%;background:{HOME_COLOR};
-                      padding:5px 10px;white-space:nowrap'>{home} {p_home * 100:.0f}%</div>
+                      padding:5px 10px;white-space:nowrap'>{home_name} {p_home * 100:.0f}%</div>
           <div style='width:{p_away * 100:.1f}%;background:{AWAY_COLOR};padding:5px 10px;
-                      text-align:right;white-space:nowrap'>{away} {p_away * 100:.0f}%</div>
+                      text-align:right;white-space:nowrap'>{away_name} {p_away * 100:.0f}%</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -164,7 +184,7 @@ with tab_games:
     # Factor breakdown (interpretability centrepiece).
     st.markdown("**What drove the prediction**")
     st.caption(
-        f"Each factor pulls the prediction toward **{home}** (left, blue) or **{away}** "
+        f"Each factor pulls the prediction toward **{home_name}** (left, blue) or **{away_name}** "
         "(right, red). The percentage is that factor's share of the model's total reasoning "
         "for this game — the five shares add up to 100%, separate from the win probabilities "
         "above. 'Home court' is the model's built-in edge for the home team."
@@ -185,12 +205,12 @@ with tab_games:
         "<div style='display:flex;align-items:center;gap:12px;margin-bottom:14px'>"
         "<div style='flex:1;display:flex;flex-direction:column;align-items:center;gap:6px'>"
         f"<img src='{logo(home)}' width='72'>"
-        f"<span style='font-size:17px;font-weight:700;color:{HOME_COLOR}'>{home} (home)</span>"
+        f"<span style='font-size:17px;font-weight:700;color:{HOME_COLOR}'>{home_name} (home)</span>"
         "</div>"
         "<div style='width:170px'></div>"
         "<div style='flex:1;display:flex;flex-direction:column;align-items:center;gap:6px'>"
         f"<img src='{logo(away)}' width='72'>"
-        f"<span style='font-size:17px;font-weight:700;color:{AWAY_COLOR}'>{away} (away)</span>"
+        f"<span style='font-size:17px;font-weight:700;color:{AWAY_COLOR}'>{away_name} (away)</span>"
         "</div>"
         "</div>"
     )
@@ -217,7 +237,7 @@ with tab_games:
     st.markdown(rows_html, unsafe_allow_html=True)
 
     top_label, top_v = max(contribs, key=lambda c: abs(c[1]))
-    st.caption(f"Strongest pull: **{FRIENDLY_NAMES[top_label]}**, toward **{home if top_v >= 0 else away}**.")
+    st.caption(f"Strongest pull: **{FRIENDLY_NAMES[top_label]}**, toward **{home_name if top_v >= 0 else away_name}**.")
 
     # Team form entering the game: the rolling-average factor values behind the differentials.
     form = load_form()
@@ -225,8 +245,8 @@ with tab_games:
         f = form.loc[game["GAME_ID"]]
         form_table = pd.DataFrame(
             {
-                f"{home} (home)": [f[f"home_{suffix}"] for suffix in FORM_COLS.values()],
-                f"{away} (away)": [f[f"away_{suffix}"] for suffix in FORM_COLS.values()],
+                f"{home_name} (home)": [f[f"home_{suffix}"] for suffix in FORM_COLS.values()],
+                f"{away_name} (away)": [f[f"away_{suffix}"] for suffix in FORM_COLS.values()],
             },
             index=list(FORM_COLS),
         )
@@ -235,9 +255,9 @@ with tab_games:
 
     # Reveal.
     if st.button("Reveal actual result"):
-        actual_winner = home if game["actual_home_win"] == 1 else away
+        actual_winner = home_name if game["actual_home_win"] == 1 else away_name
         st.write(f"Final result: **{actual_winner} won** "
-                 f"({home} {'won' if game['actual_home_win'] == 1 else 'lost'} at home).")
+                 f"({home_name} {'won' if game['actual_home_win'] == 1 else 'lost'} at home).")
         if game["correct"] == 1:
             st.success("Prediction was CORRECT.")
         else:
