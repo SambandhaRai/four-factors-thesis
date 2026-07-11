@@ -1,0 +1,5 @@
+train_era,test_era,type,accuracy,roc_auc,log_loss
+early,early,native,0.6324,0.651,0.6392
+modern,early,transfer,0.6337,0.652,0.6404
+modern,modern,native,0.61,0.6405,0.6573
+early,modern,transfer,0.6088,0.6419,0.6616
